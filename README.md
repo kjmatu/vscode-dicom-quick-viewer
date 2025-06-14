@@ -1,16 +1,22 @@
 # dicom-quick-viewer README
 
-This is the README for your extension "dicom-quick-viewer". After writing up a brief description, we recommend including the following sections.
+VS Code 上で DICOM 画像をプレビュー表示する拡張機能です。`Preview DICOM` コマンドを実行すると、アクティブな `.dcm` ファイルが DWV ライブラリを使用した Webview に表示されます。
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- 開いている DICOM ファイルを即座にプレビュー
+  - DWV ライブラリを利用した Webview 表示
 
-For example if there is an image subfolder under your extension project workspace:
+## 動作確認
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+1. 依存パッケージをインストールします。
+   ```bash
+   npm install
+   ```
+2. VS Code で本リポジトリを開き、`F5` キーを押してデバッグを開始します。新しい Extension Development Host が起動します。
+3. 起動したウィンドウで任意の `.dcm` ファイルを開きます。
+4. `Ctrl+Shift+P`（macOS の場合は `Cmd+Shift+P`）でコマンドパレットを開き、`Preview DICOM` を実行します。
+5. Webview に画像が表示されれば動作確認は成功です。
 
 ## Requirements
 
