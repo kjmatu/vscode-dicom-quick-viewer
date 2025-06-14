@@ -1,8 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-// 型定義がないため any として読み込む
-const daikon: any = require('daikon');
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -38,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
                         );
 
                         const scriptUri = panel.webview.asWebviewUri(
-                                vscode.Uri.joinPath(context.extensionUri, 'node_modules', 'daikon', 'release', 'current', 'daikon-min.js')
+                                vscode.Uri.joinPath(context.extensionUri, 'node_modules', 'dwv', 'dist', 'dwv.min.js')
                         );
 
                         panel.webview.html = getWebviewContent(base64, scriptUri);
@@ -62,7 +60,7 @@ function getWebviewContent(base64: string, scriptUri: vscode.Uri): string {
     <script src="${scriptUri}"></script>
 </head>
 <body>
-    <canvas id="dicomCanvas"></canvas>
+    <div id="layerGroup0" style="width:100%; height:100%;"></div>
     <script>
         const base64 = "${base64}";
         function base64ToArrayBuffer(b64) {
@@ -74,36 +72,20 @@ function getWebviewContent(base64: string, scriptUri: vscode.Uri): string {
             }
             return buf.buffer;
         }
-        const data = new DataView(base64ToArrayBuffer(base64));
-        const image = daikon.Series.parseImage(data);
-        if (!image) {
-            document.body.innerText = '画像の読み込みに失敗しました';
-        } else {
-            const rows = image.getRows();
-            const cols = image.getCols();
-            const pixelData = image.getInterpretedData();
-            const canvas = document.getElementById('dicomCanvas');
-            canvas.width = cols;
-            canvas.height = rows;
-            const ctx = canvas.getContext('2d');
-            const imgData = ctx.createImageData(cols, rows);
-            let min = pixelData[0], max = pixelData[0];
-            for (let i = 1; i < pixelData.length; i++) {
-                const v = pixelData[i];
-                if (v < min) min = v;
-                if (v > max) max = v;
-            }
-            for (let i = 0; i < pixelData.length; i++) {
-                const v = pixelData[i];
-                const n = Math.round((v - min) / (max - min) * 255);
-                const idx = i * 4;
-                imgData.data[idx] = n;
-                imgData.data[idx + 1] = n;
-                imgData.data[idx + 2] = n;
-                imgData.data[idx + 3] = 255;
-            }
-            ctx.putImageData(imgData, 0, 0);
-        }
+        const buffer = base64ToArrayBuffer(base64);
+        // DWV アプリケーションを初期化
+        const app = new dwv.App();
+        const viewConfig = new dwv.ViewConfig('layerGroup0');
+        const options = new dwv.AppOptions({'*': [viewConfig]});
+        options.viewOnFirstLoadItem = false;
+        app.init(options);
+        // ロード完了後に描画
+        app.addEventListener('load', () => {
+            const id = app.getDataIds()[0];
+            app.render(id);
+            app.fitToContainer();
+        });
+        app.loadImageObject([{ name: 'image.dcm', data: buffer }]);
     </script>
 </body>
 </html>`;

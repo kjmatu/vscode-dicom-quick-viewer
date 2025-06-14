@@ -51,6 +51,6 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "daikon": "^1.2.46"
+    "dwv": "^0.34.2"
   }
 }
